@@ -22,7 +22,7 @@
   --muted: #98a0c7;
   --line: #262d58;
   --brand: #7c7cff;
-  --brand-soft: #23265e;
+  --brand-soft: #1b1e4b;
 }
 @theme inline {
   --color-bg: var(--bg);

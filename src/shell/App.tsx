@@ -8,10 +8,10 @@ import { Seg } from './Seg'
 import { StyleDetail, StylesPage } from './StylesPage'
 import { styleEntries } from '../styles/registry'
 import { FontsPage } from './FontsPage'
-import { fontCount } from './fontCatalog'
+import { fontCount, loadShowcaseFonts } from './fontCatalog'
 import { TemplatesPage } from './TemplatesPage'
 import { templateCount } from './templateCatalog'
-import { onBrand, themes, themeVars } from './themes'
+import { themes, themeVars } from './themes'
 
 // three.js only loads once a 3D page is opened.
 const ThreeCatalogCanvas = lazy(() => import('../three/ThreePreview').then(m => ({ default: m.ThreeCatalogCanvas })))
@@ -80,7 +80,10 @@ function useTheme() {
 export default function App() {
   const hash = useHash()
   const [theme, toggle] = useTheme()
-  const [applied, setApplied] = useState<string | null>(null)
+  // The applied palette survives a reload, like the light/dark choice does.
+  const [applied, setApplied] = useState<string | null>(() => {
+    try { const id = localStorage.getItem('kosh-palette'); return themes.some(t => t.id === id) ? id : null } catch { return null }
+  })
   const entry = entries.find(e => e.id === hash)
   const onFonts = hash === 'fonts'
   const onTemplates = hash === 'templates'
@@ -94,11 +97,15 @@ export default function App() {
     const root = document.documentElement
     const t = themes.find(x => x.id === applied)
     const names = ['--bg', '--surface', '--surface-2', '--ink', '--muted', '--line', '--brand', '--brand-soft', '--spark', '--on-brand']
+    try { if (t) localStorage.setItem('kosh-palette', t.id); else localStorage.removeItem('kosh-palette') } catch { /* ignore */ }
     if (!t) { names.forEach(n => root.style.removeProperty(n)); return }
-    Object.entries({ ...themeVars(t), '--on-brand': onBrand(t.brand) }).forEach(([k, v]) => root.style.setProperty(k, v))
+    Object.entries(themeVars(t)).forEach(([k, v]) => root.style.setProperty(k, v))
     root.style.colorScheme = t.mode
     return () => { root.style.colorScheme = '' }
   }, [applied])
+
+  // The showcase fonts are only needed where they are shown, so the other tabs load three families, not sixty.
+  useEffect(() => { if (onFonts || onStyles) loadShowcaseFonts() }, [onFonts, onStyles])
 
   const tab = (active: boolean) => `rounded-full px-4 py-1.5 text-sm font-medium transition ${active ? 'bg-ink text-bg' : 'text-muted hover:text-ink'}`
   return (

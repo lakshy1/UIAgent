@@ -35,6 +35,14 @@ const O = "'Orbitron', sans-serif"
 const M = "'Space Mono', monospace"
 const clip = (n: number) => ({ clipPath: `polygon(0 0,calc(100% - ${n}px) 0,100% ${n}px,100% 100%,${n}px 100%,0 calc(100% - ${n}px))` })
 
+const Panel = ({ children, c = '#00f0ff', className = '' }: { children: React.ReactNode; c?: string; className?: string }) => (
+  <div className={`relative p-5 ${className}`} style={{ ...clip(16), background: '#0e1319', border: `1px solid ${c}55`, boxShadow: `inset 0 0 30px ${c}10` }}>
+    <span className="absolute left-1.5 top-1.5 h-3 w-3 border-l-2 border-t-2" style={{ borderColor: c }} />
+    <span className="absolute bottom-1.5 right-1.5 h-3 w-3 border-b-2 border-r-2" style={{ borderColor: c }} />
+    {children}
+  </div>
+)
+
 export default function CyberpunkHud({ device }: { device: Device }) {
   const m = device === 'mobile'
   const [tab, setTab] = useState(0)
@@ -54,13 +62,6 @@ export default function CyberpunkHud({ device }: { device: Device }) {
     return () => { clearInterval(a); clearInterval(b) }
   }, [auto])
 
-  const Panel = ({ children, c = '#00f0ff', className = '' }: { children: React.ReactNode; c?: string; className?: string }) => (
-    <div className={`relative p-5 ${className}`} style={{ ...clip(16), background: '#0e1319', border: `1px solid ${c}55`, boxShadow: `inset 0 0 30px ${c}10` }}>
-      <span className="absolute left-1.5 top-1.5 h-3 w-3 border-l-2 border-t-2" style={{ borderColor: c }} />
-      <span className="absolute bottom-1.5 right-1.5 h-3 w-3 border-b-2 border-r-2" style={{ borderColor: c }} />
-      {children}
-    </div>
-  )
 
   return (
     <div onPointerDown={() => setAuto(false)} onKeyDown={() => setAuto(false)} className="relative h-full w-full overflow-auto" style={{ background: '#07090d', color: '#c7d3e0', fontFamily: M, backgroundImage: 'repeating-linear-gradient(0deg,#ffffff06 0 1px,transparent 1px 3px)' }}>

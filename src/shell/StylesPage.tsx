@@ -1,11 +1,16 @@
-import { Suspense, useEffect, useState } from 'react'
-import { ArrowLeft, Check, Copy, Laptop, RotateCcw, Smartphone } from 'lucide-react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, Check, Copy, Laptop, RotateCcw, Search, Smartphone } from 'lucide-react'
 import { styleEntries, styleFamilies, type StyleEntry } from '../styles/registry'
 import type { Device } from '../styles/types'
 import { Frame, Lazy, openOnClick } from './Frame'
 import { Seg } from './Seg'
 
 export function StylesPage() {
+  const [family, setFamily] = useState<string>('All')
+  const [q, setQ] = useState('')
+  const shown = useMemo(() => styleEntries.filter(s =>
+    (family === 'All' || s.family === family) &&
+    (!q || (s.title + s.idea + s.description + s.traits.join(' ') + s.fonts).toLowerCase().includes(q.toLowerCase()))), [family, q])
   return (
     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
       <section className="kosh-hero py-14 sm:py-20">
@@ -13,16 +18,34 @@ export function StylesPage() {
         <h1 className="kosh-rise max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
           One idea, <span className="text-brand">{styleEntries.length} ways to dress it.</span>
         </h1>
-        <p className="mt-5 max-w-xl text-lg text-muted">
-          Glassmorphism, neumorphism, minimalism, maximalism, retro and more. Each style is a working mini website with a laptop and a phone version, plus the CSS recipe behind the look.
+        <p className="kosh-rise mt-5 max-w-xl text-lg text-muted" style={{ animationDelay: '.08s' }}>
+          From liquid glass and bento grids to Bauhaus and terminal mono. Each style is a working mini website with a laptop and a phone version, plus the CSS recipe, palette and fonts behind the look.
         </p>
+        <label className="kosh-rise mt-8 flex h-12 max-w-md items-center gap-3 rounded-full border border-line bg-surface px-4 shadow-sm transition focus-within:border-brand focus-within:shadow-[0_0_0_4px] focus-within:shadow-brand/15" style={{ animationDelay: '.16s' }}>
+          <Search size={18} className="text-muted" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search glass, retro, serif, grid…" aria-label="Search styles" className="w-full bg-transparent text-sm outline-none" />
+        </label>
       </section>
+
+      <div role="tablist" aria-label="Style family" className="sticky top-14 z-30 -mx-4 mb-10 flex snap-x gap-2 overflow-x-auto bg-bg/90 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0">
+        {['All', ...styleFamilies.map(f => f.name)].map(f => {
+          const n = f === 'All' ? styleEntries.length : styleEntries.filter(s => s.family === f).length
+          return (
+            <button key={f} role="tab" aria-selected={family === f} onClick={() => setFamily(f)}
+              className={`shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium transition ${family === f ? 'border-ink bg-ink text-bg' : 'border-line bg-surface text-muted hover:border-brand hover:text-ink'}`}>
+              {f} <span className="opacity-60">{n}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {shown.length === 0 && <p className="py-20 text-center text-muted">No style matches “{q}”. Try glass, retro or serif.</p>}
       {styleFamilies.map(f => {
-        const items = styleEntries.filter(s => s.family === f.name)
+        const items = shown.filter(s => s.family === f.name)
         if (!items.length) return null
         return (
           <section key={f.name} className="mb-16">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight">{f.name}</h2>
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">{f.name} <span className="text-lg font-normal text-muted">{items.length}</span></h2>
             <p className="mt-1 max-w-2xl text-muted">{f.blurb}</p>
             <div className="mt-6 grid gap-6 md:grid-cols-2">{items.map(s => <StyleCard key={s.id} s={s} />)}</div>
           </section>
@@ -44,6 +67,7 @@ function StyleCard({ s }: { s: StyleEntry }) {
           <span className="flex gap-1" aria-hidden>{s.palette.slice(0, 5).map(c => <span key={c.hex} className="size-4 rounded-full border border-line" style={{ background: c.hex }} />)}</span>
         </div>
         <p className="mt-1 text-sm text-muted">Web idea: {s.idea}</p>
+        <p className="mt-0.5 text-xs text-muted">{s.era}</p>
         <p className="mt-2 line-clamp-2 text-sm text-muted">{s.description}</p>
         <span className="mt-3 inline-block text-sm font-medium text-brand">Open style, recipe and code</span>
       </a>
