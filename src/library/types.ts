@@ -1,6 +1,6 @@
 export type Device = 'laptop' | 'mobile'
 export type Category =
-  | 'Buttons' | 'Motion' | 'Navigation' | 'Sections' | 'Cards' | 'Overlays' | 'Data' | 'Forms' | 'Backgrounds' | 'Media'
+  | 'Buttons' | 'Motion' | '3D' | 'Navigation' | 'Sections' | 'Cards' | 'Overlays' | 'Data' | 'Forms' | 'Backgrounds' | 'Media'
 export interface Meta {
   id: string            // kebab-case, unique
   title: string

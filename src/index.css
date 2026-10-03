@@ -80,3 +80,4 @@ html { scrollbar-gutter: stable; }
 
 /* Keep text readable on brand fills when a light-brand palette is applied */
 .bg-brand.text-white, .bg-brand .text-white { color: var(--on-brand, #fff); }
+ .three-fallback { background: radial-gradient(ellipse at 50% 45%, #374b67 0%, #1a2638 48%, #0d1422 100%); }

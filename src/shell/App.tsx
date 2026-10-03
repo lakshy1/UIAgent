@@ -7,7 +7,10 @@ import { ColorsPage } from './ColorsPage'
 import { Seg } from './Seg'
 import { StyleDetail, StylesPage } from './StylesPage'
 import { styleEntries } from '../styles/registry'
+import { FontsPage } from './FontsPage'
+import { fontCount } from './fontCatalog'
 import { onBrand, themes, themeVars } from './themes'
+import { ThreeCatalogCanvas } from '../three/ThreePreview'
 
 const INSPIRATION = [
   { name: 'shadcn/ui', url: 'https://ui.shadcn.com', take: 'Preview / Code tabs, copy on every block, viewport switcher.' },
@@ -45,6 +48,7 @@ export default function App() {
   const [theme, toggle] = useTheme()
   const [applied, setApplied] = useState<string | null>(null)
   const entry = entries.find(e => e.id === hash)
+  const onFonts = hash === 'fonts'
   const onColors = hash === 'colors'
   const onStyles = hash === 'styles' || hash.startsWith('style/')
 
@@ -63,42 +67,46 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="mx-auto grid min-h-14 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-2 sm:flex sm:h-14 sm:justify-between sm:gap-3 sm:py-0 sm:px-6">
           <a href="#" className="font-display text-lg font-bold tracking-tight">Lakshya<span className="text-brand">Kosh</span></a>
-          <nav aria-label="Sections" className="inline-flex rounded-full border border-line bg-surface p-1">
-            <a href="#" aria-current={!onColors && !onStyles ? 'page' : undefined} className={tab(!onColors && !onStyles)}>Design</a>
-            <a href="#styles" aria-current={onStyles ? 'page' : undefined} className={tab(onStyles)}>Styles</a>
-            <a href="#colors" aria-current={onColors ? 'page' : undefined} className={tab(onColors)}>Colors</a>
-          </nav>
-          <div className="flex items-center gap-3 text-sm text-muted">
-            <span className="hidden md:inline">{onColors ? `${themes.length} palettes` : onStyles ? `${styleEntries.length} styles` : `${entries.length} components`}</span>
+          <div className="flex items-center justify-end gap-2 text-sm text-muted sm:order-3 sm:gap-3">
+            <span className="hidden md:inline">{onFonts ? `${fontCount} fonts` : onColors ? `${themes.length} palettes` : onStyles ? `${styleEntries.length} styles` : `${entries.length} components`}</span>
             <button onClick={toggle} aria-label="Toggle theme" className="grid size-9 place-items-center rounded-full border border-line bg-surface hover:border-brand">
               {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
             </button>
           </div>
+          <nav aria-label="Sections" className="col-span-2 flex min-w-0 w-full items-center rounded-full border border-line bg-surface p-1 sm:col-span-1 sm:order-2 sm:w-auto">
+            <a href="#" aria-current={!onColors && !onStyles && !onFonts ? 'page' : undefined} className={`${tab(!onColors && !onStyles && !onFonts)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Design</a>
+            <a href="#styles" aria-current={onStyles ? 'page' : undefined} className={`${tab(onStyles)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Styles</a>
+            <a href="#colors" aria-current={onColors ? 'page' : undefined} className={`${tab(onColors)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Colors</a>
+            <a href="#fonts" aria-current={onFonts ? 'page' : undefined} className={`${tab(onFonts)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Fonts</a>
+          </nav>
         </div>
       </header>
-      {onColors ? <ColorsPage applied={applied} onApply={setApplied} /> : hash.startsWith('style/') ? <StyleDetail id={hash.slice(6)} /> : onStyles ? <StylesPage /> : entry ? <Detail entry={entry} /> : <Gallery />}
+      {onColors ? <ColorsPage applied={applied} onApply={setApplied} /> : onFonts ? <FontsPage /> : hash.startsWith('style/') ? <StyleDetail id={hash.slice(6)} /> : onStyles ? <StylesPage /> : entry ? <Detail entry={entry} /> : <Gallery />}
+      {entry?.category === '3D' && <ThreeCatalogCanvas />}
       <Footer />
     </div>
   )
 }
 
 function Gallery() {
+  const galleryEntries = entries
+  const galleryGroups = groups
   const [group, setGroup] = useState<string>('All')
   const [q, setQ] = useState('')
-  const matches = useMemo(() => entries.filter(e =>
+  const matches = useMemo(() => galleryEntries.filter(e =>
     (group === 'All' || e.group === group) &&
-    (!q || (e.title + e.description + e.tags.join(' ') + e.source.join(' ') + e.family).toLowerCase().includes(q.toLowerCase()))), [group, q])
-  const visible = groups.filter(g => group === 'All' || g.name === group)
+    (!q || (e.title + e.description + e.tags.join(' ') + e.source.join(' ') + e.family).toLowerCase().includes(q.toLowerCase()))), [galleryEntries, group, q])
+  const visible = galleryGroups.filter(g => group === 'All' || g.name === group)
   return (
     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
       <section className="py-14 sm:py-20">
         <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-          Every interface I have built, <span className="text-brand">ready to copy.</span>
+          <>Every interface I have built, <span className="text-brand">ready to copy.</span></>
         </h1>
         <p className="mt-5 max-w-xl text-lg text-muted">
-          {entries.length} components in {groups.length} groups, distilled from 31 projects. Each one has a laptop and a phone design, runs live, and comes with code to copy.
+          {`${galleryEntries.length} components in ${galleryGroups.length} groups, distilled from 31 projects. Each one has a laptop and a phone design, runs live, and comes with code to copy.`}
         </p>
         <label className="mt-8 flex h-12 max-w-md items-center gap-3 rounded-full border border-line bg-surface px-4 focus-within:border-brand">
           <Search size={18} className="text-muted" />
@@ -107,8 +115,8 @@ function Gallery() {
       </section>
 
       <div role="tablist" aria-label="Groups" className="sticky top-14 z-30 -mx-4 mb-10 flex snap-x gap-2 overflow-x-auto bg-bg/90 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0">
-        {['All', ...groups.map(g => g.name)].map(c => {
-          const n = c === 'All' ? entries.length : entries.filter(e => e.group === c).length
+        {['All', ...galleryGroups.map(g => g.name)].map(c => {
+          const n = c === 'All' ? galleryEntries.length : galleryEntries.filter(e => e.group === c).length
           return (
             <button key={c} role="tab" aria-selected={group === c} onClick={() => setGroup(c)}
               className={`shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium transition ${group === c ? 'border-ink bg-ink text-bg' : 'border-line bg-surface text-muted hover:border-brand hover:text-ink'}`}>
@@ -124,8 +132,7 @@ function Gallery() {
         if (!inGroup.length) return null
         return (
           <section key={g.name} className="mb-16">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight">{g.name}</h2>
-            <p className="mt-1 max-w-2xl text-muted">{g.blurb}</p>
+            <><h2 className="font-display text-3xl font-extrabold tracking-tight">{g.name}</h2><p className="mt-1 max-w-2xl text-muted">{g.blurb}</p></>
             {g.families.map(f => {
               const items = inGroup.filter(m => m.family === f.name)
               if (!items.length) return null
@@ -173,11 +180,14 @@ function Detail({ entry: e }: { entry: Entry }) {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-  const idx = entries.findIndex(x => x.id === e.id)
-  const next = entries[(idx + 1) % entries.length]
+  const relatedEntries = entries.filter(x => x.group === e.group)
+  const idx = relatedEntries.findIndex(x => x.id === e.id)
+  const next = relatedEntries[(idx + 1) % relatedEntries.length]
+  const backHref = '#'
+  const backLabel = 'All components'
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-      <a href="#" className="mt-8 inline-flex items-center gap-2 text-sm text-muted hover:text-ink"><ArrowLeft size={16} /> All components</a>
+      <a href={backHref} className="mt-8 inline-flex items-center gap-2 text-sm text-muted hover:text-ink"><ArrowLeft size={16} /> {backLabel}</a>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-brand">{e.group} · {e.family}</p>

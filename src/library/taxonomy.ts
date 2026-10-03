@@ -82,7 +82,7 @@ export const groups: Group[] = [
   },
   {
     name: 'Motion and text effects',
-    blurb: 'Animated type and ambient movement that adds life without getting in the way.',
+    blurb: 'Small animated details that add life to interfaces and content.',
     families: [
       { name: 'Text effects', ids: ['blur-in-words', 'morphing-text', 'shimmer-text', 'stagger-text', 'text-scramble', 'typewriter'] },
       { name: 'Ambient motion', ids: ['logo-marquee', 'animated-list', 'floating-blobs', 'orbiting-dots', 'scroll-progress-bar', 'tilt-flip-card'] },
@@ -94,6 +94,13 @@ export const groups: Group[] = [
     families: [
       { name: 'Light and glow', ids: ['aurora-background', 'noise-gradient-mesh', 'spotlight-cursor', 'gradient-border-glow', 'ripple-rings'] },
       { name: 'Patterns and particles', ids: ['dot-pattern-glow', 'grid-pattern-fade', 'particles-canvas', 'meteors', 'background-beams'] },
+    ],
+  },
+  {
+    name: '3D experiences',
+    blurb: 'Interactive 3D models and scenes for product pages, portfolios and immersive heroes.',
+    families: [
+      { name: 'Interactive 3D experiences', ids: ['chrome-orbital-core', 'synthetic-robot-head', 'floating-sneaker-concept', 'liquid-metal-sculpture', 'glass-crystal-monolith', 'interactive-planet', 'mechanical-reactor', 'digital-human-mask', 'silk-fabric-sculpture', 'futuristic-vehicle-concept', 'headphone-product-model', 'isometric-creative-room', 'kinetic-sculpture', 'dna-biotech-helix', 'torus-energy-engine', 'interactive-character-bust', 'botanical-glass-sculpture', 'dimensional-portal', 'cast-render-story-reel', 'mainframe-mouse-scrub-hero'] },
     ],
   },
 ]
