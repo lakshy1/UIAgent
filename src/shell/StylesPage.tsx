@@ -2,14 +2,15 @@ import { Suspense, useEffect, useState } from 'react'
 import { ArrowLeft, Check, Copy, Laptop, RotateCcw, Smartphone } from 'lucide-react'
 import { styleEntries, styleFamilies, type StyleEntry } from '../styles/registry'
 import type { Device } from '../styles/types'
-import { Frame, Lazy } from './Frame'
+import { Frame, Lazy, openOnClick } from './Frame'
 import { Seg } from './Seg'
 
 export function StylesPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-      <section className="py-14 sm:py-20">
-        <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+      <section className="kosh-hero py-14 sm:py-20">
+        <span aria-hidden className="kosh-hero-glow" />
+        <h1 className="kosh-rise max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
           One idea, <span className="text-brand">{styleEntries.length} ways to dress it.</span>
         </h1>
         <p className="mt-5 max-w-xl text-lg text-muted">
@@ -33,7 +34,7 @@ export function StylesPage() {
 
 function StyleCard({ s }: { s: StyleEntry }) {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-line bg-surface transition hover:border-brand hover:shadow-xl">
+    <article className="kosh-spot kosh-reveal group overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 hover:-translate-y-1 hover:border-brand hover:shadow-xl cursor-pointer" onClick={openOnClick(`#style/${s.id}`)}>
       <Lazy className="relative aspect-[16/10] border-b border-line bg-surface-2">
         <Frame device="laptop" thumb><Suspense fallback={null}><s.Demo device="laptop" /></Suspense></Frame>
       </Lazy>
@@ -57,7 +58,12 @@ export function StyleDetail({ id }: { id: string }) {
   const [run, setRun] = useState(0)
   const [code, setCode] = useState('')
   const [copied, setCopied] = useState<string | null>(null)
-  useEffect(() => { scrollTo(0, 0); setTab('preview'); setCode(''); s?.loadCode().then(setCode) }, [s])
+  useEffect(() => {
+    let current = true
+    scrollTo(0, 0); setTab('preview'); setCode('')
+    s?.loadCode().then(c => { if (current) setCode(c) })
+    return () => { current = false }
+  }, [s])
   if (!s) return <main className="mx-auto max-w-3xl px-4 py-24"><a href="#styles" className="text-brand">Back to styles</a><p className="mt-4 text-muted">That style does not exist.</p></main>
   const copy = async (key: string, text: string) => {
     try { await navigator.clipboard.writeText(text) } catch { /* ignore */ }

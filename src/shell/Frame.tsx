@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import type { Device } from '../library/types'
 
 const SIZE = { laptop: { w: 1100, h: 640 }, mobile: { w: 375, h: 760 } }
@@ -37,14 +37,27 @@ export function Frame({ device, children, maxHeight, thumb }: { device: Device; 
   )
 }
 
-/** Mounts children only once scrolled into view, to keep the gallery light. */
+/**
+ * Click handler that makes a whole gallery card open its page, live preview included.
+ * The demo inside may contain its own links (often href="#"), so their default is cancelled;
+ * the card's real link is left alone so open-in-new-tab and keyboard use still work.
+ */
+export function openOnClick(href: string) {
+  return (e: MouseEvent) => {
+    if ((e.target as Element).closest('a')?.getAttribute('href') === href) return
+    e.preventDefault()
+    location.hash = href
+  }
+}
+
+/** Mounts children only while near the viewport, so off-screen demos stop their timers and animations. */
 export function Lazy({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const [seen, setSeen] = useState(false)
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect() } }, { rootMargin: '200px' })
+    const io = new IntersectionObserver(([e]) => setSeen(e.isIntersecting), { rootMargin: '300px' })
     io.observe(el)
     return () => io.disconnect()
   }, [])

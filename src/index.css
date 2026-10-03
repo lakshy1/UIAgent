@@ -81,3 +81,59 @@ html { scrollbar-gutter: stable; }
 /* Keep text readable on brand fills when a light-brand palette is applied */
 .bg-brand.text-white, .bg-brand .text-white { color: var(--on-brand, #fff); }
  .three-fallback { background: radial-gradient(ellipse at 50% 45%, #374b67 0%, #1a2638 48%, #0d1422 100%); }
+
+/* ---------- Shell polish ---------- */
+/* Each page rises in when its tab is opened. Fill is backwards only: a transform that lingers after the
+   animation would trap the sticky group bar in its own layer, underneath the fixed 3D canvas. */
+@keyframes kosh-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.kosh-page { animation: kosh-enter .5s cubic-bezier(.2, .7, .2, 1) backwards; }
+.kosh-rise { animation: kc-rise .7s cubic-bezier(.2, .7, .2, 1) both; }
+
+/* Soft colour behind every page hero, drifting slowly, with a dot grid that fades out toward the edges. */
+.kosh-hero { position: relative; isolation: isolate; }
+.kosh-hero-glow {
+  position: absolute; inset: -18% -12% -6%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(36% 52% at 16% 34%, color-mix(in srgb, var(--brand) 24%, transparent), transparent 72%),
+    radial-gradient(28% 44% at 74% 20%, color-mix(in srgb, var(--spark) 16%, transparent), transparent 72%);
+  filter: blur(36px);
+  animation: kosh-drift 16s ease-in-out infinite alternate;
+}
+.kosh-hero::before {
+  content: ''; position: absolute; inset: 0 -8%; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--muted) 38%, transparent) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(60% 75% at 30% 45%, #000 20%, transparent 78%);
+}
+@keyframes kosh-drift { to { transform: translate3d(5%, 7%, 0) scale(1.1); } }
+
+/* Cards: a glow that follows the pointer (position set from App.tsx). */
+.kosh-spot { position: relative; }
+.kosh-spot::after {
+  content: ''; position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%);
+  opacity: 0; transition: opacity .35s ease;
+}
+.kosh-spot:hover::after { opacity: 1; }
+
+/* Cards fade up as they scroll into view, where the browser supports scroll-driven animation. */
+@keyframes kosh-reveal { from { opacity: 0; transform: translateY(26px) scale(.975); } to { opacity: 1; transform: none; } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .kosh-reveal { animation: kosh-reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
+  }
+}
+
+/* Reading progress along the bottom edge of the header. */
+.kosh-progress {
+  position: absolute; left: 0; bottom: -1px; width: 100%; height: 2px; transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--brand), var(--spark));
+}
+@keyframes kosh-grow { to { transform: scaleX(1); } }
+@supports (animation-timeline: scroll()) {
+  .kosh-progress { animation: kosh-grow linear both; animation-timeline: scroll(root); }
+}
+
+/* Header tab row scrolls sideways on phones; the bar itself would only add noise. */
+.kosh-noscrollbar { scrollbar-width: none; }
+.kosh-noscrollbar::-webkit-scrollbar { display: none; }

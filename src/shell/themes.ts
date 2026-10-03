@@ -24,6 +24,11 @@ export const themes: Theme[] = [
   { id: 'gruvbox-light', name: 'Gruvbox Light', mode: 'light', known: 'Gruvbox, warm retro editor theme', bg: '#fbf1c7', surface: '#ebdbb2', ink: '#3c3836', muted: '#7c6f64', line: '#d5c4a1', brand: '#076678', accent: '#af3a03' },
   { id: 'emerald-fresh', name: 'Emerald Fresh', mode: 'light', known: 'Health, fintech and sustainability products', bg: '#f6faf7', surface: '#ffffff', ink: '#0b2e1f', muted: '#5b7a6b', line: '#d4e5da', brand: '#059669', accent: '#f59e0b' },
   { id: 'coral-sunset', name: 'Coral Sunset', mode: 'light', known: 'Consumer, food and lifestyle apps', bg: '#fff8f5', surface: '#ffffff', ink: '#2b1a17', muted: '#8a6a62', line: '#f0ddd6', brand: '#e11d48', accent: '#fb923c' },
+  { id: 'stripe-light', name: 'Blurple', mode: 'light', known: 'Stripe-style fintech: deep navy ink, violet brand', bg: '#f6f9fc', surface: '#ffffff', ink: '#0a2540', muted: '#56687d', line: '#e3e8ee', brand: '#574fe8', accent: '#00b4d8' },
+  { id: 'ayu-light', name: 'Ayu Light', mode: 'light', known: 'Ayu, the bright editor theme', bg: '#fcfcfc', surface: '#f3f4f5', ink: '#3d424a', muted: '#666a70', line: '#e1e3e6', brand: '#1a6fb3', accent: '#fa8d3e' },
+  { id: 'everforest-light', name: 'Everforest Light', mode: 'light', known: 'Everforest, soft green and easy on the eyes', bg: '#fdf6e3', surface: '#f4f0d9', ink: '#4a555b', muted: '#616b5f', line: '#e0dcc7', brand: '#547118', accent: '#dc6f2b' },
+  { id: 'tokyo-night-day', name: 'Tokyo Night Day', mode: 'light', known: 'Tokyo Night, the daytime variant', bg: '#e1e2e7', surface: '#d0d5e3', ink: '#343b58', muted: '#51587a', line: '#b7c1e3', brand: '#1d5fc4', accent: '#b15c00' },
+  { id: 'kanagawa-lotus', name: 'Kanagawa Lotus', mode: 'light', known: 'Kanagawa, inspired by Hokusai, light variant', bg: '#f2ecbc', surface: '#e7dba0', ink: '#545464', muted: '#625f52', line: '#d5cea3', brand: '#4d699b', accent: '#c84053' },
   // ---------- Dark ----------
   { id: 'github-dark', name: 'GitHub Dark', mode: 'dark', known: 'github.com dark theme', bg: '#0d1117', surface: '#161b22', ink: '#e6edf3', muted: '#8b949e', line: '#30363d', brand: '#58a6ff', accent: '#3fb950' },
   { id: 'dracula', name: 'Dracula', mode: 'dark', known: 'Dracula, in nearly every editor and terminal', bg: '#282a36', surface: '#343746', ink: '#f8f8f2', muted: '#8f9bc7', line: '#44475a', brand: '#bd93f9', accent: '#50fa7b' },
@@ -35,6 +40,11 @@ export const themes: Theme[] = [
   { id: 'gruvbox-dark', name: 'Gruvbox Dark', mode: 'dark', known: 'Gruvbox, warm retro editor theme', bg: '#282828', surface: '#3c3836', ink: '#ebdbb2', muted: '#a89984', line: '#504945', brand: '#fabd2f', accent: '#b8bb26' },
   { id: 'rose-pine', name: 'Rosé Pine', mode: 'dark', known: 'Rosé Pine, soft and low-contrast', bg: '#191724', surface: '#1f1d2e', ink: '#e0def4', muted: '#908caa', line: '#26233a', brand: '#ebbcba', accent: '#f6c177' },
   { id: 'zinc-midnight', name: 'Zinc Midnight', mode: 'dark', known: 'Tailwind zinc + indigo, modern dark dashboards', bg: '#09090b', surface: '#18181b', ink: '#fafafa', muted: '#a1a1aa', line: '#27272a', brand: '#818cf8', accent: '#fbbf24' },
+  { id: 'monokai', name: 'Monokai', mode: 'dark', known: 'Monokai, the Sublime Text classic', bg: '#272822', surface: '#34352f', ink: '#f8f8f2', muted: '#a59f85', line: '#49483e', brand: '#ff5c93', accent: '#a6e22e' },
+  { id: 'night-owl', name: 'Night Owl', mode: 'dark', known: 'Night Owl by Sarah Drasner, tuned for late nights', bg: '#011627', surface: '#0b2942', ink: '#d6deeb', muted: '#7f96ad', line: '#1d3b53', brand: '#82aaff', accent: '#addb67' },
+  { id: 'ayu-mirage', name: 'Ayu Mirage', mode: 'dark', known: 'Ayu, the mid-dark variant', bg: '#1f2430', surface: '#242936', ink: '#cccac2', muted: '#8a9199', line: '#343b4c', brand: '#73d0ff', accent: '#ffcc66' },
+  { id: 'everforest-dark', name: 'Everforest Dark', mode: 'dark', known: 'Everforest, warm green forest tones', bg: '#2d353b', surface: '#343f44', ink: '#d3c6aa', muted: '#9da9a0', line: '#475258', brand: '#a7c080', accent: '#e69875' },
+  { id: 'kanagawa-wave', name: 'Kanagawa Wave', mode: 'dark', known: 'Kanagawa, inspired by Hokusai, the original', bg: '#1f1f28', surface: '#2a2a37', ink: '#dcd7ba', muted: '#9a9783', line: '#363646', brand: '#7e9cd8', accent: '#ffa066' },
 ]
 
 /** CSS variables our components read. */

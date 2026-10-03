@@ -9,17 +9,20 @@ const SWATCHES: [keyof Theme, string][] = [
 export function ColorsPage({ applied, onApply }: { applied: string | null; onApply: (id: string | null) => void }) {
   const [mode, setMode] = useState<'all' | 'light' | 'dark'>('all')
   const sections = (['light', 'dark'] as const).filter(m => mode === 'all' || mode === m)
+  const lights = themes.filter(t => t.mode === 'light').length
+  const darks = themes.length - lights
   return (
     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-      <section className="py-14 sm:py-20">
-        <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-          Twenty palettes people <span className="text-brand">actually ship.</span>
+      <section className="kosh-hero py-14 sm:py-20">
+        <span aria-hidden className="kosh-hero-glow" />
+        <h1 className="kosh-rise max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+          {themes.length} palettes people <span className="text-brand">actually ship.</span>
         </h1>
         <p className="mt-5 max-w-xl text-lg text-muted">
-          Ten light and ten dark themes, from editor classics to product defaults. Copy the CSS variables, or apply one to this whole site and watch every component change.
+          {lights} light and {darks} dark themes, from editor classics to product defaults. Copy the CSS variables, or apply one to this whole site and watch every component change.
         </p>
         <div role="tablist" aria-label="Mode" className="mt-8 inline-flex rounded-full border border-line bg-surface p-1">
-          {([['all', 'All 20', null], ['light', 'Light 10', Sun], ['dark', 'Dark 10', Moon]] as const).map(([v, label, Icon]) => (
+          {([['all', `All ${themes.length}`, null], ['light', `Light ${lights}`, Sun], ['dark', `Dark ${darks}`, Moon]] as const).map(([v, label, Icon]) => (
             <button key={v} role="tab" aria-selected={mode === v} onClick={() => setMode(v)}
               className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition ${mode === v ? 'bg-ink text-bg' : 'text-muted hover:text-ink'}`}>
               {Icon && <Icon size={14} />} {label}
@@ -62,7 +65,7 @@ function ThemeCard({ t, isApplied, onApply }: { t: Theme; isApplied: boolean; on
   const level = ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA' : 'Low'
   const scoped = themeVars(t) as CSSProperties
   return (
-    <article className={`overflow-hidden rounded-2xl border bg-surface transition ${isApplied ? 'border-brand shadow-xl' : 'border-line hover:border-brand'}`}>
+    <article className={`kosh-spot kosh-reveal overflow-hidden rounded-2xl border bg-surface transition duration-300 hover:-translate-y-1 ${isApplied ? 'border-brand shadow-xl' : 'border-line hover:border-brand'}`}>
       {/* Mini product screen drawn in the theme's own colors */}
       <div style={scoped} className="bg-bg p-4 text-ink">
         <div className="rounded-xl border border-line bg-surface p-4">

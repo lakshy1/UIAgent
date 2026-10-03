@@ -7,9 +7,9 @@ export const groups: Group[] = [
     name: 'Actions',
     blurb: 'Things people press: calls to action, toggles and quick-action triggers.',
     families: [
-      { name: 'Call-to-action buttons', ids: ['glow-button', 'pill-cta', 'shimmer-border-button', 'magnetic-button'] },
-      { name: 'Stateful buttons', ids: ['loading-button', 'copy-button', 'heart-burst-button', 'social-login-buttons'] },
-      { name: 'Toggles and speed dials', ids: ['segmented-toggle', 'fab-speed-dial'] },
+      { name: 'Call-to-action buttons', ids: ['glow-button', 'pill-cta', 'shimmer-border-button', 'magnetic-button', 'ripple-button'] },
+      { name: 'Stateful buttons', ids: ['loading-button', 'copy-button', 'heart-burst-button', 'confetti-button', 'social-login-buttons'] },
+      { name: 'Toggles and speed dials', ids: ['segmented-toggle', 'theme-switch', 'fab-speed-dial'] },
     ],
   },
   {
@@ -28,7 +28,7 @@ export const groups: Group[] = [
     blurb: 'Full-width blocks for landing pages and marketing sites.',
     families: [
       { name: 'Heroes', ids: ['hero-split-mockup', 'hero-spotlight', 'hero-product-demo'] },
-      { name: 'Features and process', ids: ['feature-bento', 'feature-rows', 'sticky-scroll-reveal', 'how-it-works-steps', 'vertical-roadmap'] },
+      { name: 'Features and process', ids: ['feature-bento', 'feature-rows', 'animated-beam-flow', 'sticky-scroll-reveal', 'how-it-works-steps', 'vertical-roadmap', 'tracing-beam-timeline'] },
       { name: 'Pricing and proof', ids: ['pricing-section', 'comparison-table', 'testimonials', 'stats-band'] },
       { name: 'Conversion and footer', ids: ['cta-banner', 'newsletter-signup', 'launch-countdown', 'faq-accordion', 'footer-section'] },
     ],
@@ -39,7 +39,7 @@ export const groups: Group[] = [
     families: [
       { name: 'Content and product cards', ids: ['article-card', 'product-card', 'profile-card', 'charger-card', 'pricing-card'] },
       { name: 'Dashboard and task cards', ids: ['kpi-card', 'kanban-task-card', 'notification-card'] },
-      { name: 'Interactive cards', ids: ['bento-spotlight-card', 'expandable-card', 'glass-card', 'stacked-card-deck', 'tilt-glare-card', 'testimonial-marquee-cards'] },
+      { name: 'Interactive cards', ids: ['bento-spotlight-card', 'border-beam-card', 'expandable-card', 'glass-card', 'stacked-card-deck', 'tilt-glare-card', 'testimonial-marquee-cards'] },
     ],
   },
   {
@@ -48,7 +48,7 @@ export const groups: Group[] = [
     families: [
       { name: 'Dialogs and sheets', ids: ['modal-dialog', 'confirm-dialog', 'bottom-sheet', 'detail-drawer'] },
       { name: 'Menus and hints', ids: ['context-menu', 'popover-menu', 'tooltip-set', 'notification-center'] },
-      { name: 'Toasts', ids: ['toast-stack', 'snackbar-undo'] },
+      { name: 'Toasts and live activity', ids: ['toast-stack', 'snackbar-undo', 'dynamic-island'] },
       { name: 'Loading and empty states', ids: ['state-panels', 'shimmer-skeleton', 'charging-ring'] },
     ],
   },
@@ -56,7 +56,7 @@ export const groups: Group[] = [
     name: 'Forms and inputs',
     blurb: 'Collecting information: fields, pickers, uploads and multi-step flows.',
     families: [
-      { name: 'Fields and controls', ids: ['validated-inputs', 'otp-input', 'tag-input', 'select-combobox', 'star-rating', 'toggle-controls'] },
+      { name: 'Fields and controls', ids: ['validated-inputs', 'otp-input', 'tag-input', 'select-combobox', 'range-slider', 'star-rating', 'toggle-controls'] },
       { name: 'Search, dates and uploads', ids: ['expanding-search', 'date-picker', 'file-dropzone'] },
       { name: 'Sign-in and multi-step flows', ids: ['login-card', 'multi-step-form', 'stepper-wizard'] },
     ],
@@ -67,7 +67,7 @@ export const groups: Group[] = [
     families: [
       { name: 'Charts and gauges', ids: ['bar-chart', 'line-area-chart', 'donut-chart', 'readiness-gauge', 'progress-bars', 'heatmap-calendar'] },
       { name: 'Tables and boards', ids: ['data-table', 'kanban-board', 'leaderboard'] },
-      { name: 'Lists and feeds', ids: ['activity-timeline', 'tree-view', 'chat-thread'] },
+      { name: 'Lists and feeds', ids: ['activity-timeline', 'tree-view', 'chat-thread', 'terminal-window'] },
       { name: 'Metrics and badges', ids: ['sparkline-stat-grid', 'status-badges', 'animated-counter', 'number-ticker', 'pricing-calculator'] },
     ],
   },
@@ -84,23 +84,25 @@ export const groups: Group[] = [
     name: 'Motion and text effects',
     blurb: 'Small animated details that add life to interfaces and content.',
     families: [
-      { name: 'Text effects', ids: ['blur-in-words', 'morphing-text', 'shimmer-text', 'stagger-text', 'text-scramble', 'typewriter'] },
-      { name: 'Ambient motion', ids: ['logo-marquee', 'animated-list', 'floating-blobs', 'orbiting-dots', 'scroll-progress-bar', 'tilt-flip-card'] },
+      { name: 'Text effects', ids: ['blur-in-words', 'flip-words', 'morphing-text', 'shimmer-text', 'sparkles-text', 'glitch-text', 'stagger-text', 'text-scramble', 'typewriter', 'circular-text', 'scroll-text-reveal'] },
+      { name: 'Ambient motion', ids: ['logo-marquee', 'animated-list', 'cursor-trail', 'floating-blobs', 'orbiting-dots', 'scroll-progress-bar', 'tilt-flip-card'] },
     ],
   },
   {
     name: 'Backgrounds',
     blurb: 'Backdrops for heroes and panels.',
     families: [
-      { name: 'Light and glow', ids: ['aurora-background', 'noise-gradient-mesh', 'spotlight-cursor', 'gradient-border-glow', 'ripple-rings'] },
+      { name: 'Light and glow', ids: ['aurora-background', 'lamp-glow', 'noise-gradient-mesh', 'spotlight-cursor', 'gradient-border-glow', 'ripple-rings'] },
       { name: 'Patterns and particles', ids: ['dot-pattern-glow', 'grid-pattern-fade', 'particles-canvas', 'meteors', 'background-beams'] },
     ],
   },
   {
-    name: '3D experiences',
-    blurb: 'Interactive 3D models and scenes for product pages, portfolios and immersive heroes.',
+    name: '3D animations',
+    blurb: 'Real-time WebGL scenes: shaders, particle systems and reflective materials that react to the pointer.',
     families: [
-      { name: 'Interactive 3D experiences', ids: ['chrome-orbital-core', 'synthetic-robot-head', 'floating-sneaker-concept', 'liquid-metal-sculpture', 'glass-crystal-monolith', 'interactive-planet', 'mechanical-reactor', 'digital-human-mask', 'silk-fabric-sculpture', 'futuristic-vehicle-concept', 'headphone-product-model', 'isometric-creative-room', 'kinetic-sculpture', 'dna-biotech-helix', 'torus-energy-engine', 'interactive-character-bust', 'botanical-glass-sculpture', 'dimensional-portal', 'cast-render-story-reel', 'mainframe-mouse-scrub-hero'] },
+      { name: 'Shader surfaces', ids: ['iridescent-blob', 'plasma-orb', 'mesh-gradient', 'aurora-ribbons', 'topographic-terrain', 'midnight-ocean', 'event-horizon'] },
+      { name: 'Particle systems', ids: ['particle-galaxy', 'morphing-particles', 'particle-wave-field', 'network-globe', 'warp-starfield', 'particle-vortex', 'sound-sphere'] },
+      { name: 'Materials and light', ids: ['liquid-chrome', 'prism-gem', 'orbital-gyroscope', 'soap-bubbles', 'lattice-pulse', 'wave-cubes', 'neon-tunnel'] },
     ],
   },
 ]

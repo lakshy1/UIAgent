@@ -1,16 +1,25 @@
-import { Suspense, useEffect, useMemo, useState } from 'react'
-import { Check, Copy, Laptop, RotateCcw, Moon, Search, Smartphone, Sun, ArrowLeft, ExternalLink } from 'lucide-react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { ArrowUp, Check, Copy, Laptop, RotateCcw, Moon, Search, Smartphone, Sun, ArrowLeft, ExternalLink } from 'lucide-react'
 import { groups, entries, type Entry } from '../library/registry'
 import type { Device } from '../library/types'
-import { Frame, Lazy } from './Frame'
+import { Frame, Lazy, openOnClick } from './Frame'
 import { ColorsPage } from './ColorsPage'
 import { Seg } from './Seg'
 import { StyleDetail, StylesPage } from './StylesPage'
 import { styleEntries } from '../styles/registry'
 import { FontsPage } from './FontsPage'
 import { fontCount } from './fontCatalog'
+import { TemplatesPage } from './TemplatesPage'
+import { templateCount } from './templateCatalog'
 import { onBrand, themes, themeVars } from './themes'
-import { ThreeCatalogCanvas } from '../three/ThreePreview'
+
+// three.js only loads once a 3D page is opened.
+const ThreeCatalogCanvas = lazy(() => import('../three/ThreePreview').then(m => ({ default: m.ThreeCatalogCanvas })))
+const is3D = (e: Entry) => e.category === '3D'
+const designEntries = entries.filter(e => !is3D(e))
+const threeEntries = entries.filter(is3D)
+const designGroups = groups.filter(g => designEntries.some(e => e.group === g.name))
+const threeGroups = groups.filter(g => threeEntries.some(e => e.group === g.name))
 
 const INSPIRATION = [
   { name: 'shadcn/ui', url: 'https://ui.shadcn.com', take: 'Preview / Code tabs, copy on every block, viewport switcher.' },
@@ -28,6 +37,31 @@ function useHash() {
   return h
 }
 
+/** Feeds the pointer position to whichever card is under it; the card's glow is drawn in CSS from these. */
+function trackSpotlight(e: ReactPointerEvent) {
+  const card = (e.target as Element).closest<HTMLElement>('.kosh-spot')
+  if (!card) return
+  const r = card.getBoundingClientRect()
+  card.style.setProperty('--mx', `${e.clientX - r.left}px`)
+  card.style.setProperty('--my', `${e.clientY - r.top}px`)
+}
+
+function BackToTop() {
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    const f = () => setShown(scrollY > 900)
+    f()
+    addEventListener('scroll', f, { passive: true })
+    return () => removeEventListener('scroll', f)
+  }, [])
+  return (
+    <button onClick={() => scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" tabIndex={shown ? 0 : -1}
+      className={`fixed bottom-5 right-5 z-30 grid size-11 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-lg backdrop-blur transition duration-300 hover:border-brand hover:text-brand ${shown ? 'opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}>
+      <ArrowUp size={18} />
+    </button>
+  )
+}
+
 function useTheme() {
   const [t, setT] = useState<'light' | 'dark'>(() => {
     try {
@@ -40,7 +74,7 @@ function useTheme() {
     document.documentElement.dataset.theme = t
     try { localStorage.setItem('kosh-theme', t) } catch { /* ignore */ }
   }, [t])
-  return [t, () => setT(t === 'light' ? 'dark' : 'light')] as const
+  return [t, () => setT(v => (v === 'light' ? 'dark' : 'light'))] as const
 }
 
 export default function App() {
@@ -49,8 +83,11 @@ export default function App() {
   const [applied, setApplied] = useState<string | null>(null)
   const entry = entries.find(e => e.id === hash)
   const onFonts = hash === 'fonts'
+  const onTemplates = hash === 'templates'
   const onColors = hash === 'colors'
   const onStyles = hash === 'styles' || hash.startsWith('style/')
+  const onThree = hash === '3d' || (!!entry && is3D(entry))
+  const onDesign = !onColors && !onStyles && !onFonts && !onThree && !onTemplates
 
   // Applying a palette writes the same variables the components read, so everything re-colors live.
   useEffect(() => {
@@ -65,52 +102,75 @@ export default function App() {
 
   const tab = (active: boolean) => `rounded-full px-4 py-1.5 text-sm font-medium transition ${active ? 'bg-ink text-bg' : 'text-muted hover:text-ink'}`
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-clip" onPointerMove={trackSpotlight}>
       <header className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur">
+        <span aria-hidden className="kosh-progress" />
         <div className="mx-auto grid min-h-14 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-2 sm:flex sm:h-14 sm:justify-between sm:gap-3 sm:py-0 sm:px-6">
           <a href="#" className="font-display text-lg font-bold tracking-tight">Lakshya<span className="text-brand">Kosh</span></a>
           <div className="flex items-center justify-end gap-2 text-sm text-muted sm:order-3 sm:gap-3">
-            <span className="hidden md:inline">{onFonts ? `${fontCount} fonts` : onColors ? `${themes.length} palettes` : onStyles ? `${styleEntries.length} styles` : `${entries.length} components`}</span>
-            <button onClick={toggle} aria-label="Toggle theme" className="grid size-9 place-items-center rounded-full border border-line bg-surface hover:border-brand">
+            <span className="hidden md:inline">{onTemplates ? `${templateCount} templates` : onFonts ? `${fontCount} fonts` : onColors ? `${themes.length} palettes` : onStyles ? `${styleEntries.length} styles` : onThree ? `${threeEntries.length} scenes` : `${designEntries.length} components`}</span>
+            <button onClick={() => { setApplied(null); toggle() }} aria-label="Toggle theme" className="grid size-9 place-items-center rounded-full border border-line bg-surface hover:border-brand">
               {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
             </button>
           </div>
-          <nav aria-label="Sections" className="col-span-2 flex min-w-0 w-full items-center rounded-full border border-line bg-surface p-1 sm:col-span-1 sm:order-2 sm:w-auto">
-            <a href="#" aria-current={!onColors && !onStyles && !onFonts ? 'page' : undefined} className={`${tab(!onColors && !onStyles && !onFonts)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Design</a>
-            <a href="#styles" aria-current={onStyles ? 'page' : undefined} className={`${tab(onStyles)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Styles</a>
-            <a href="#colors" aria-current={onColors ? 'page' : undefined} className={`${tab(onColors)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Colors</a>
-            <a href="#fonts" aria-current={onFonts ? 'page' : undefined} className={`${tab(onFonts)} min-w-0 flex-1 px-1.5 text-center text-xs sm:min-w-max sm:flex-none sm:px-4 sm:text-sm`}>Fonts</a>
+          <nav aria-label="Sections" className="kosh-noscrollbar col-span-2 flex min-w-0 w-full items-center overflow-x-auto rounded-full border border-line bg-surface p-1 sm:col-span-1 sm:order-2 sm:w-auto">
+            <a href="#" aria-current={onDesign ? 'page' : undefined} className={`${tab(onDesign)} shrink-0 px-3 text-center text-xs sm:px-4 sm:text-sm`}>Design</a>
+            <a href="#3d" aria-current={onThree ? 'page' : undefined} className={`${tab(onThree)} shrink-0 px-3 text-center text-xs sm:px-4 sm:text-sm`}><span className="sm:hidden">3D</span><span className="hidden sm:inline">3D Animations</span></a>
+            <a href="#styles" aria-current={onStyles ? 'page' : undefined} className={`${tab(onStyles)} shrink-0 px-3 text-center text-xs sm:px-4 sm:text-sm`}>Styles</a>
+            <a href="#colors" aria-current={onColors ? 'page' : undefined} className={`${tab(onColors)} shrink-0 px-3 text-center text-xs sm:px-4 sm:text-sm`}>Colors</a>
+            <a href="#fonts" aria-current={onFonts ? 'page' : undefined} className={`${tab(onFonts)} shrink-0 px-3 text-center text-xs sm:px-4 sm:text-sm`}>Fonts</a>
+            <a href="#templates" aria-current={onTemplates ? 'page' : undefined} className={`${tab(onTemplates)} shrink-0 px-3 text-center text-xs sm:px-4 sm:text-sm`}>Templates</a>
           </nav>
         </div>
       </header>
-      {onColors ? <ColorsPage applied={applied} onApply={setApplied} /> : onFonts ? <FontsPage /> : hash.startsWith('style/') ? <StyleDetail id={hash.slice(6)} /> : onStyles ? <StylesPage /> : entry ? <Detail entry={entry} /> : <Gallery />}
-      {entry?.category === '3D' && <ThreeCatalogCanvas />}
+      {/* Keyed by route so each page plays its entrance when you arrive. */}
+      <div key={hash || 'home'} className="kosh-page">
+        {onTemplates ? <TemplatesPage /> : onColors ? <ColorsPage applied={applied} onApply={setApplied} /> : onFonts ? <FontsPage /> : hash.startsWith('style/') ? <StyleDetail id={hash.slice(6)} /> : onStyles ? <StylesPage /> : entry ? <Detail entry={entry} /> : <Gallery three={onThree} />}
+      </div>
+      {onThree && <Suspense fallback={null}><ThreeCatalogCanvas /></Suspense>}
       <Footer />
+      <BackToTop />
     </div>
   )
 }
 
-function Gallery() {
-  const galleryEntries = entries
-  const galleryGroups = groups
+function Gallery({ three }: { three: boolean }) {
+  const galleryEntries = three ? threeEntries : designEntries
+  const galleryGroups = three ? threeGroups : designGroups
   const [group, setGroup] = useState<string>('All')
   const [q, setQ] = useState('')
+  const search = useRef<HTMLInputElement>(null)
+  // Press / anywhere to jump to search, as on most documentation sites.
+  useEffect(() => {
+    const f = (e: KeyboardEvent) => {
+      const typing = (e.target as HTMLElement).closest('input, textarea, [contenteditable]')
+      if (e.key !== '/' || typing || e.metaKey || e.ctrlKey || e.altKey) return
+      e.preventDefault()
+      search.current?.focus()
+    }
+    addEventListener('keydown', f)
+    return () => removeEventListener('keydown', f)
+  }, [])
   const matches = useMemo(() => galleryEntries.filter(e =>
     (group === 'All' || e.group === group) &&
     (!q || (e.title + e.description + e.tags.join(' ') + e.source.join(' ') + e.family).toLowerCase().includes(q.toLowerCase()))), [galleryEntries, group, q])
   const visible = galleryGroups.filter(g => group === 'All' || g.name === group)
   return (
     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-      <section className="py-14 sm:py-20">
-        <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-          <>Every interface I have built, <span className="text-brand">ready to copy.</span></>
+      <section className="kosh-hero py-14 sm:py-20">
+        <span aria-hidden className="kosh-hero-glow" />
+        <h1 className="kosh-rise max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+          {three ? <>Scenes that move, <span className="text-brand">built from code.</span></> : <>Every interface I have built, <span className="text-brand">ready to copy.</span></>}
         </h1>
-        <p className="mt-5 max-w-xl text-lg text-muted">
-          {`${galleryEntries.length} components in ${galleryGroups.length} groups, distilled from 31 projects. Each one has a laptop and a phone design, runs live, and comes with code to copy.`}
+        <p className="kosh-rise mt-5 max-w-xl text-lg text-muted" style={{ animationDelay: '.08s' }}>
+          {three
+            ? `${galleryEntries.length} interactive 3D scenes drawn with procedural geometry, so there are no model files to download. Move the pointer over any of them, then open one for the code.`
+            : `${galleryEntries.length} components in ${galleryGroups.length} groups, distilled from 31 projects. Each one has a laptop and a phone design, runs live, and comes with code to copy.`}
         </p>
-        <label className="mt-8 flex h-12 max-w-md items-center gap-3 rounded-full border border-line bg-surface px-4 focus-within:border-brand">
+        <label className="kosh-rise mt-8 flex h-12 max-w-md items-center gap-3 rounded-full border border-line bg-surface px-4 shadow-sm transition focus-within:border-brand focus-within:shadow-[0_0_0_4px] focus-within:shadow-brand/15" style={{ animationDelay: '.16s' }}>
           <Search size={18} className="text-muted" />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search sidebar, pricing, sheet…" className="w-full bg-transparent text-sm outline-none" />
+          <input ref={search} value={q} onChange={e => setQ(e.target.value)} placeholder={three ? 'Search chrome, glass, planet…' : 'Search sidebar, pricing, sheet…'} className="w-full bg-transparent text-sm outline-none" />
+          <kbd aria-hidden className="hidden rounded-md border border-line px-1.5 py-0.5 font-mono text-[11px] text-muted sm:block">/</kbd>
         </label>
       </section>
 
@@ -126,7 +186,7 @@ function Gallery() {
         })}
       </div>
 
-      {matches.length === 0 && <p className="py-20 text-center text-muted">Nothing matches “{q}”. Try a word like sidebar, card or chart.</p>}
+      {matches.length === 0 && <p className="py-20 text-center text-muted">Nothing matches “{q}”. Try a word like {three ? 'glass, robot or portal' : 'sidebar, card or chart'}.</p>}
       {visible.map(g => {
         const inGroup = matches.filter(m => m.group === g.name)
         if (!inGroup.length) return null
@@ -152,7 +212,7 @@ function Gallery() {
 
 function Card({ e }: { e: Entry }) {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-line bg-surface transition hover:border-brand hover:shadow-xl">
+    <article className="kosh-spot kosh-reveal group overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 hover:-translate-y-1 hover:border-brand hover:shadow-xl cursor-pointer" onClick={openOnClick(`#${e.id}`)}>
       <Lazy className="relative aspect-[8/5] border-b border-line bg-surface-2">
         <Frame device="laptop" thumb><Suspense fallback={null}><e.Demo device="laptop" /></Suspense></Frame>
       </Lazy>
@@ -174,7 +234,12 @@ function Detail({ entry: e }: { entry: Entry }) {
   const [copied, setCopied] = useState(false)
   const [run, setRun] = useState(0)
   const [code, setCode] = useState('')
-  useEffect(() => { scrollTo(0, 0); setTab('preview'); setCode(''); e.loadCode().then(setCode) }, [e])
+  useEffect(() => {
+    let current = true
+    scrollTo(0, 0); setTab('preview'); setCode('')
+    e.loadCode().then(c => { if (current) setCode(c) })
+    return () => { current = false }
+  }, [e])
   const copy = async () => {
     try { await navigator.clipboard.writeText(code) } catch { /* ignore */ }
     setCopied(true)
@@ -183,8 +248,8 @@ function Detail({ entry: e }: { entry: Entry }) {
   const relatedEntries = entries.filter(x => x.group === e.group)
   const idx = relatedEntries.findIndex(x => x.id === e.id)
   const next = relatedEntries[(idx + 1) % relatedEntries.length]
-  const backHref = '#'
-  const backLabel = 'All components'
+  const backHref = is3D(e) ? '#3d' : '#'
+  const backLabel = is3D(e) ? 'All 3D animations' : 'All components'
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
       <a href={backHref} className="mt-8 inline-flex items-center gap-2 text-sm text-muted hover:text-ink"><ArrowLeft size={16} /> {backLabel}</a>
@@ -236,7 +301,7 @@ function Detail({ entry: e }: { entry: Entry }) {
           </section>
         )}
       </div>
-      <p className="mt-8 text-sm text-muted">Needs Tailwind CSS v4, lucide-react{code.includes('framer-motion') ? ' and framer-motion' : ''}. Colors come from the theme tokens in index.css.</p>
+      <p className="mt-8 text-sm text-muted">{is3D(e) ? 'Needs three, @react-three/fiber and @react-three/drei.' : `Needs Tailwind CSS v4, lucide-react${code.includes('framer-motion') ? ' and framer-motion' : ''}. Colors come from the theme tokens in index.css.`}</p>
     </main>
   )
 }

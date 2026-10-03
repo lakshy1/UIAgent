@@ -25,8 +25,13 @@ export default function CommandPalette({ device }: { device: Device }) {
   const [ran, setRan] = useState('')
   const mobile = device === 'mobile'
   const list = cmds.filter(c => c.l.toLowerCase().includes(q.toLowerCase()))
+  const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOpen(o => !o) } }
+    const h = (e: KeyboardEvent) => {
+      const el = root.current
+      if (!el || !(el.matches(':hover') || el.contains(document.activeElement))) return
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOpen(o => !o) }
+    }
     window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h)
   }, [])
   const key = (e: React.KeyboardEvent) => {
@@ -35,7 +40,6 @@ export default function CommandPalette({ device }: { device: Device }) {
     if (e.key === 'ArrowUp') { e.preventDefault(); setSel(s => Math.max(s - 1, 0)) }
     if (e.key === 'Enter' && list[sel]) { setRan(list[sel].l); setOpen(false) }
   }
-  const root = useRef<HTMLDivElement>(null)
   const live = useRef(true)
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return

@@ -7,7 +7,7 @@ export interface StyleEntry extends StyleMeta {
   file: string
 }
 
-const metas = import.meta.glob<StyleMeta>('./*.tsx', { eager: true, import: 'meta' })
+const metas = import.meta.glob<StyleMeta>('./*.tsx', { eager: true, import: 'meta', query: '?meta' })
 const loaders = import.meta.glob<{ default: ComponentType<{ device: Device }> }>('./*.tsx')
 const raws = import.meta.glob<string>('./*.tsx', { query: '?raw', import: 'default' })
 
